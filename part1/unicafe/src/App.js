@@ -10,9 +10,10 @@ const Button = ({text, onClick}) => {
 
 const Statistic = ({ text, value }) => {
 	return (
-		<div>
-			<p>{text} {value}</p>
-		</div>
+		<tr>
+			<td>{text}</td>
+			<td>{Math.round(value * 10)/10} {text === "positive" ? "%":""}</td>
+		</tr>
 	)
 }
 
@@ -24,14 +25,16 @@ const Statistics = ({ stats }) => {
 	}
 
 	return (
-		<div>
-			<Statistic text="good" value={stats.good} />
-			<Statistic text="neutral" value={stats.neutral} />
-			<Statistic text="bad" value={stats.bad} />
-			<Statistic text="all" value={stats.all} />
-			<Statistic text="average" value={stats.average} />
-			<Statistic text="positive" value={stats.positive} />
-		</div>
+		<table>
+			<tbody>
+				<Statistic text="good" value={stats.good} />
+				<Statistic text="neutral" value={stats.neutral} />
+				<Statistic text="bad" value={stats.bad} />
+				<Statistic text="all" value={stats.all} />
+				<Statistic text="average" value={stats.average} />
+				<Statistic text="positive" value={stats.positive} />
+			</tbody>
+		</table>
 	);
 }
 
