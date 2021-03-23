@@ -26,7 +26,7 @@ const App = () => {
 		<div>
 			<Filter filter={filter} handleFilter={handleFilter} />
 			<Countries countries={filteredCountries} />
-			{!Object.keys(countries).length ? <div /> : <CountryInfo countries={filteredCountries} />}
+			{filteredCountries.length === 1 ? <CountryInfo country={filteredCountries[0]}/> : <div />}
 		</div>
 	);
 }
