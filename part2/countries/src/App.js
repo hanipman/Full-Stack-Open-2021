@@ -4,11 +4,13 @@ import axios from 'axios'
 import Countries from './components/Countries.js'
 import CountryInfo from './components/CountryInfo.js'
 import Filter from './components/Filter.js'
+import Weather from './components/Weather.js'
 
 const App = () => {
 	const [ countries, setCountries ] = useState([])
 	const [ filter, setFilter ] = useState('')
 	const [ filteredCountries, setFilteredCountries ] = useState([])
+	// const [ flag, setFlag ] = useState(false)
 
 	useEffect(() => {
 		axios.get('https://restcountries.eu/rest/v2/all')
@@ -26,7 +28,12 @@ const App = () => {
 		<div>
 			<Filter filter={filter} handleFilter={handleFilter} />
 			<Countries countries={filteredCountries} />
-			{filteredCountries.length === 1 ? <CountryInfo country={filteredCountries[0]}/> : <div />}
+			{filteredCountries.length === 1 ? 
+				<div>
+					<CountryInfo country={filteredCountries[0]}/>
+					<Weather country={filteredCountries[0]} />
+				</div>
+					: <div />}
 		</div>
 	);
 }

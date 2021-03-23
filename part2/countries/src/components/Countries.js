@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import CountryInfo from './CountryInfo'
+import CountryInfo from './CountryInfo.js'
 
 const SpecificCountry = ({ country }) => {
 	const [ flag, setFlag ] = useState(false)
