@@ -61,7 +61,12 @@ const App = () => {
 	useEffect(() => {
 		personService.getAll().then(x => setPersons(x))
 			.catch(error => {
-				setNotif(`Failed to get phonebook, check that the server is running.` )
+				if (!error.response) {
+					setNotif('Could not connect to server.')
+				}
+				else {
+					setNotif(`Failed to get phonebook`)
+				}
 				setError(true)
 				setTimeout(() => {
 					setNotif(null)
@@ -87,7 +92,13 @@ const App = () => {
 						}, 5000)
 					})
 					.catch(error => {
-						setNotif(`Unable to update number of ${newEntry.name}.`)
+						if (!error.response) {
+							setNotif('Could not connect to server.')
+						}
+						else {
+							setNotif(`Information of ${newEntry.name} has already been removed from server`)
+							setPersons(persons.filter(person => person.name !== newEntry.name))
+						}
 						setError(true)
 						setTimeout(() => {
 							setNotif(null)
@@ -106,7 +117,12 @@ const App = () => {
 					}, 5000)
 				})
 				.catch(error => {
-					setNotif(`Unable to create new entry for ${newEntry.name}`)
+					if (!error.response) {
+						setNotif('Could not connect to server.')
+					}
+					else {
+						setNotif(`Unable to create new entry for ${newEntry.name}`)
+					}
 					setError(true)
 					setTimeout(() => {
 						setNotif(null)
@@ -146,7 +162,13 @@ const App = () => {
 					}, 5000)
 				})
 				.catch(error => {
-					setNotif(`Unable to delete entry for ${name}`)
+					if (!error.response) {
+						setNotif('Could not connect to server.')
+					}
+					else {
+						setNotif(`Information of ${name} has already been removed from server`)
+						setPersons(persons.filter(person => person.name !== name))
+					}
 					setError(true)
 					setTimeout(() => {
 						setNotif(null)
