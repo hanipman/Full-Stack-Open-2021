@@ -28,7 +28,7 @@ const Persons = ({ persons, filter, handleDelete }) => {
 	return (
 		<ul>
 			{persons.filter(person => 
-				person.name.toLowerCase().includes(filter)).map((person, i) =>
+				person.name.toLowerCase().includes(filter.toLowerCase())).map((person, i) =>
 					<div key={i} >
 						<li key={i}> {person.name} {person.number} <button onClick={event => handleDelete(event, person.id, person.name)}>Delete</button></li>
 					</div>
@@ -47,16 +47,34 @@ const App = () => {
 	
 	useEffect(() => {
 		personService.getAll().then(x => setPersons(x))
+			.catch(error => {
+				console.log(`Failed to get phonebook, check that the server is running.`, error)
+			})
 	}, [])
 
 	const handleAdd = (event) => {
 		event.preventDefault()
-		if (persons.filter(person => person.name === newEntry.name).length > 0) {
-			window.alert(`${newEntry.name} is already added to phonebook`)
+		const filtered_list = persons.filter(person => person.name === newEntry.name)
+		if (filtered_list.length > 0) {
+			if (window.confirm(`${newEntry.name} is already added to phonebook, replace the old number with a new one?`)) {
+				personService.update(filtered_list[0].id, newEntry)
+					.then(x => {
+						const copy = [...persons]
+						const index = copy.findIndex(x => x.id === filtered_list[0].id)
+						copy[index].number = newEntry.number
+						setPersons(copy)
+					})
+					.catch(error => {
+						console.log(`Unable to update number of ${newEntry.name}.`, error)
+					})
+			}
 		}
 		else {
 			personService.create(newEntry)
 				.then(x => setPersons(persons.concat({ name: x.name, number: x.number })))
+				.catch(error => {
+					console.log(`Unable to create new entry for ${newEntry.name}`, error)
+				})
 		}
 	}
 
@@ -83,6 +101,9 @@ const App = () => {
 		if (window.confirm(`Delete ${name}?`)) {
 			personService.deletePerson(id)
 				.then(setPersons(persons.filter(person => person.id !== id)))
+				.catch(error => {
+					console.log(`Unable to delete entry for ${name}`, error)
+				})
 		}
 	}
 
