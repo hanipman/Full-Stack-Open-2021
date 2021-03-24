@@ -37,6 +37,17 @@ const Persons = ({ persons, filter, handleDelete }) => {
 	)
 }
 
+const Notification = ({ notif, error }) => {
+	if (notif === null) {
+		return null
+	}
+	return (
+		<div className={error ? "error" : "notif"}>
+			{notif}
+		</div>
+	)
+}
+
 const App = () => {
 	const [ persons, setPersons ] = useState([]) 
 	const [ newEntry, setEntry ] = useState({
@@ -44,11 +55,18 @@ const App = () => {
 		number: ''
 	})
 	const [ filter, setFilter ] = useState('')
+	const [ notif, setNotif ] = useState(null)
+	const [ error, setError ] = useState(false)
 	
 	useEffect(() => {
 		personService.getAll().then(x => setPersons(x))
 			.catch(error => {
-				console.log(`Failed to get phonebook, check that the server is running.`, error)
+				setNotif(`Failed to get phonebook, check that the server is running.` )
+				setError(true)
+				setTimeout(() => {
+					setNotif(null)
+					setError(false)
+				}, 5000)
 			})
 	}, [])
 
@@ -63,17 +81,37 @@ const App = () => {
 						const index = copy.findIndex(x => x.id === filtered_list[0].id)
 						copy[index].number = newEntry.number
 						setPersons(copy)
+						setNotif(`Updated ${newEntry.name}`)
+						setTimeout(() => {
+							setNotif(null)
+						}, 5000)
 					})
 					.catch(error => {
-						console.log(`Unable to update number of ${newEntry.name}.`, error)
+						setNotif(`Unable to update number of ${newEntry.name}.`)
+						setError(true)
+						setTimeout(() => {
+							setNotif(null)
+							setError(false)
+						}, 5000)
 					})
 			}
 		}
 		else {
 			personService.create(newEntry)
-				.then(x => setPersons(persons.concat({ name: x.name, number: x.number })))
+				.then(x => {
+					setPersons(persons.concat({ name: x.name, number: x.number, id: x.id}))
+					setNotif(`Created entry for ${x.name}`)
+					setTimeout(() => {
+						setNotif(null)
+					}, 5000)
+				})
 				.catch(error => {
-					console.log(`Unable to create new entry for ${newEntry.name}`, error)
+					setNotif(`Unable to create new entry for ${newEntry.name}`)
+					setError(true)
+					setTimeout(() => {
+						setNotif(null)
+						setError(false)
+					}, 5000)
 				})
 		}
 	}
@@ -100,9 +138,20 @@ const App = () => {
 		event.preventDefault()
 		if (window.confirm(`Delete ${name}?`)) {
 			personService.deletePerson(id)
-				.then(setPersons(persons.filter(person => person.id !== id)))
+				.then(() => {
+					setPersons(persons.filter(person => person.id !== id))
+					setNotif(`Deleted ${name}`)
+					setTimeout(() => {
+						setNotif(null)
+					}, 5000)
+				})
 				.catch(error => {
-					console.log(`Unable to delete entry for ${name}`, error)
+					setNotif(`Unable to delete entry for ${name}`)
+					setError(true)
+					setTimeout(() => {
+						setNotif(null)
+						setError(false)
+					}, 5000)
 				})
 		}
 	}
@@ -110,6 +159,7 @@ const App = () => {
 	return (
 		<div>
 		  	<h2>Phonebook</h2>
+			<Notification notif={notif} error={error} />
 			<Filter filter={filter} handleFilter={handleFilter} />
 			<h2>add a new</h2>
 			<PersonForm 
