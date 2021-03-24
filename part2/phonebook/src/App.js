@@ -24,12 +24,14 @@ const PersonForm = ({ handleAdd, handleNameChange, handleNumberChange, name, num
 	)
 }
 
-const Persons = ({ persons, filter }) => {
+const Persons = ({ persons, filter, handleDelete }) => {
 	return (
 		<ul>
 			{persons.filter(person => 
 				person.name.toLowerCase().includes(filter)).map((person, i) =>
-					<li key={i}> {person.name} {person.number} </li>
+					<div key={i} >
+						<li key={i}> {person.name} {person.number} <button onClick={event => handleDelete(event, person.id, person.name)}>Delete</button></li>
+					</div>
 			)}
 		</ul>
 	)
@@ -76,6 +78,14 @@ const App = () => {
 		})
 	}
 
+	const handleDelete = (event, id, name) => {
+		event.preventDefault()
+		if (window.confirm(`Delete ${name}?`)) {
+			personService.deletePerson(id)
+				.then(setPersons(persons.filter(person => person.id !== id)))
+		}
+	}
+
 	return (
 		<div>
 		  	<h2>Phonebook</h2>
@@ -89,7 +99,7 @@ const App = () => {
 				number={newEntry.number}
 			/>
 		  	<h2>Numbers</h2>
-			<Persons persons={persons} filter={filter} />
+			<Persons persons={persons} filter={filter} handleDelete={handleDelete} />
 		</div>
 	)
 }
