@@ -1,9 +1,7 @@
 const express = require('express')
-const morgan = require('morgan')
 const app = express()
 
 app.use(express.json())
-app.use(morgan('tiny'))
 
 let persons = [
 	{ 
@@ -51,7 +49,8 @@ app.get('/api/persons/:id', (request, response) => {
 	}
 })
 
-app.post('/api/persons/', (error, request, response) => {
+app.post('/api/persons/', (request, response) => {
+	console.log(request.body)
 	const person = request.body
 	if (!person.number || !person.name || !person) {
 		response.status(400)
