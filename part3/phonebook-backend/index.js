@@ -45,10 +45,19 @@ app.use(morgan((tokens, request, response) => {
 app.get('/info', (request, response) => {
 	const date = new Date().toString()
 	Person.find({}).then(result => {
-		response.send(`
-			<div>Phonebook has info for ${result.length} people</div>
-			<div>${date}</div>
-		`)
+		if (result) {
+			response.send(`
+				<div>Phonebook has info for ${result.length} people</div>
+				<div>${date}</div>
+			`)
+		}
+		else {
+			response.status(404).end()
+		}
+	})
+	.catch(error => {
+		console.log(error)
+		response.status(500).end()
 	})
 })
 
@@ -56,20 +65,31 @@ app.get('/api/persons', (request, response) => {
 	Person.find({}).then(result => {
 		response.json(result)
 	})
+	.catch(error => {
+		consolee.log(error)
+		response.status(500).end()
+	})
 })
 
 app.get('/api/persons/:id', (request, response) => {
 	Person.findById(request.params.id).then(result => {
-		response.json(result)
+		if (result) {
+			response.json(result)
+		}
+		else {
+			response.status(404).end()
+		}
+	})
+	.catch(error => {
+		console.log(error)
+		response.status(400).send({ error: 'malformatted id' })
 	})
 })
 
 app.post('/api/persons/', (request, response) => {
-	console.log(request.body)
 	const entry = request.body
 	if (!entry.number || !entry.name || !entry) {
-		response.status(400)
-		response.send({ error: 'missing name or number' })
+		response.status(400).send({ error: 'missing name or number' })
 		return
 	}
 	// if (Person.find({ name: person.name }).then(result => {
@@ -84,16 +104,21 @@ app.post('/api/persons/', (request, response) => {
 		console.log(`added ${person.name} number ${person.number} to phonebook`)
 		response.json(entry)
 	})
+	.catch(error => {
+		console.log(error)
+		response.status(500).end()
+	})
 })
 
-// app.delete('/api/persons/:id', (request, response) => {
-// 	const id = Number(request.params.id)
-// 	const person = persons.find(person => person.id === id)
-// 	if (person) {
-// 		persons = persons.filter(person => person.id !== id)
-// 	}
-// 	response.status(204).end()
-// })
+app.delete('/api/persons/:id', (request, response) => {
+	Person.findByIdAndRemove(request.params.id).then(result => {
+		response.status(204).end()
+	})
+	.catch(error => {
+		console.log(error)
+		response.status(500).end()
+	})
+})
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
