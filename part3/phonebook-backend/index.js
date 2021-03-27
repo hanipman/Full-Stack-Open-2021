@@ -1,5 +1,6 @@
 const cors = require('cors')
 const express = require('express')
+const { Mongoose } = require('mongoose')
 const morgan = require('morgan')
 const Person = require('./models/person')
 const app = express()
@@ -63,23 +64,27 @@ app.get('/api/persons/:id', (request, response) => {
 	})
 })
 
-// app.post('/api/persons/', (request, response) => {
-// 	console.log(request.body)
-// 	const person = request.body
-// 	if (!person.number || !person.name || !person) {
-// 		response.status(400)
-// 		response.send({ error: 'missing name or number' })
-// 		return
-// 	}
-// 	if (persons.find(x => x.name === person.name)) {
-// 		response.status(409)
-// 		response.send({ error: 'name must be unique' })
-// 		return
-// 	}
-// 	person.id = Math.floor(Math.random() * Math.floor(100))
-// 	persons = persons.concat(person)
-// 	response.json(person)
-// })
+app.post('/api/persons/', (request, response) => {
+	console.log(request.body)
+	const entry = request.body
+	if (!entry.number || !entry.name || !entry) {
+		response.status(400)
+		response.send({ error: 'missing name or number' })
+		return
+	}
+	// if (Person.find({ name: person.name }).then(result => {
+	// 	response.status(409)
+	// 	response.send({ error: 'name must be unique' })
+	// 	return
+	// }
+	// person.id = Math.floor(Math.random() * Math.floor(100))
+	// persons = persons.concat(person)
+	const person = new Person({ name: entry.name, number: entry.number })
+	person.save().then(result => {
+		console.log(`added ${person.name} number ${person.number} to phonebook`)
+		response.json(entry)
+	})
+})
 
 // app.delete('/api/persons/:id', (request, response) => {
 // 	const id = Number(request.params.id)
