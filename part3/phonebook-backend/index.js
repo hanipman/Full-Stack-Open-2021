@@ -83,17 +83,23 @@ app.post('/api/persons/', (request, response, next) => {
 		response.status(400).send({ error: 'missing name or number' })
 		return
 	}
-	// if (Person.find({ name: person.name }).then(result => {
-	// 	response.status(409)
-	// 	response.send({ error: 'name must be unique' })
-	// 	return
-	// }
-	// person.id = Math.floor(Math.random() * Math.floor(100))
-	// persons = persons.concat(person)
 	const person = new Person({ name: entry.name, number: entry.number })
 	person.save().then(result => {
 		console.log(`added ${person.name} number ${person.number} to phonebook`)
 		response.json(entry)
+	})
+	.catch(error => next(error))
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+	const entry = request.body
+	if (!entry.number || !entry.name || !entry) {
+		response.status(400).send({ error: 'missing name or number' })
+		return
+	}
+	const person = {name: entry.name, number: entry.number }
+	Person.findByIdAndUpdate(request.params.id, person, {new: true }).then(result => {
+		response.json(result)
 	})
 	.catch(error => next(error))
 })
