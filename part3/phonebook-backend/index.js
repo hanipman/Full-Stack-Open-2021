@@ -42,7 +42,7 @@ app.use(morgan((tokens, request, response) => {
 // 	}
 // ]
 
-app.get('/info', (request, response) => {
+app.get('/info', (request, response, next) => {
 	const date = new Date().toString()
 	Person.find({}).then(result => {
 		if (result) {
@@ -55,23 +55,17 @@ app.get('/info', (request, response) => {
 			response.status(404).end()
 		}
 	})
-	.catch(error => {
-		console.log(error)
-		response.status(500).end()
-	})
+	.catch(error => next(error))
 })
 
-app.get('/api/persons', (request, response) => {
+app.get('/api/persons', (request, response, next) => {
 	Person.find({}).then(result => {
 		response.json(result)
 	})
-	.catch(error => {
-		consolee.log(error)
-		response.status(500).end()
-	})
+	.catch(error => next(error))
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
 	Person.findById(request.params.id).then(result => {
 		if (result) {
 			response.json(result)
@@ -80,13 +74,10 @@ app.get('/api/persons/:id', (request, response) => {
 			response.status(404).end()
 		}
 	})
-	.catch(error => {
-		console.log(error)
-		response.status(400).send({ error: 'malformatted id' })
-	})
+	.catch(error => next(error))
 })
 
-app.post('/api/persons/', (request, response) => {
+app.post('/api/persons/', (request, response, next) => {
 	const entry = request.body
 	if (!entry.number || !entry.name || !entry) {
 		response.status(400).send({ error: 'missing name or number' })
@@ -104,21 +95,25 @@ app.post('/api/persons/', (request, response) => {
 		console.log(`added ${person.name} number ${person.number} to phonebook`)
 		response.json(entry)
 	})
-	.catch(error => {
-		console.log(error)
-		response.status(500).end()
-	})
+	.catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
 	Person.findByIdAndRemove(request.params.id).then(result => {
 		response.status(204).end()
 	})
-	.catch(error => {
-		console.log(error)
-		response.status(500).end()
-	})
+	.catch(error => next(error))
 })
+
+const errorHandler = (error, request, response, next) => {
+	console.log(error.message)
+	if (error.name === 'CastError') {
+		return response.status(400).send({ error: 'malformed id' })
+	}
+	next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
