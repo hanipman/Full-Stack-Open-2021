@@ -1,6 +1,5 @@
 const cors = require('cors')
 const express = require('express')
-const { Mongoose } = require('mongoose')
 const morgan = require('morgan')
 const Person = require('./models/person')
 const app = express()
@@ -19,62 +18,42 @@ app.use(morgan((tokens, request, response) => {
 	].join(' ')
 }))
 
-// let persons = [
-// 	{ 
-// 		"name": "Arto Hellas", 
-// 		"number": "040-123456",
-// 		"id": 1
-// 	},
-// 	{
-// 		"name": "Ada Lovelace", 
-// 		"number": "39-44-5323523",
-// 		"id": 2
-// 	},
-// 	{ 
-// 		"name": "Dan Abramov", 
-// 		"number": "12-43-234345",
-// 		"id": 3
-// 	},
-// 	{ 
-// 		"name": "Mary Poppendieck", 
-// 		"number": "39-23-6423122",
-// 		"id": 4
-// 	}
-// ]
-
 app.get('/info', (request, response, next) => {
 	const date = new Date().toString()
-	Person.find({}).then(result => {
-		if (result) {
-			response.send(`
-				<div>Phonebook has info for ${result.length} people</div>
-				<div>${date}</div>
-			`)
-		}
-		else {
-			response.status(404).end()
-		}
-	})
-	.catch(error => next(error))
+	Person.find({})
+		.then(result => {
+			if (result) {
+				response.send(`
+					<div>Phonebook has info for ${result.length} people</div>
+					<div>${date}</div>
+				`)
+			}
+			else {
+				response.status(404).end()
+			}
+		})
+		.catch(error => next(error))
 })
 
 app.get('/api/persons', (request, response, next) => {
-	Person.find({}).then(result => {
-		response.json(result)
-	})
-	.catch(error => next(error))
+	Person.find({})
+		.then(result => {
+			response.json(result)
+		})
+		.catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
-	Person.findById(request.params.id).then(result => {
-		if (result) {
-			response.json(result)
-		}
-		else {
-			response.status(404).end()
-		}
-	})
-	.catch(error => next(error))
+	Person.findById(request.params.id)
+		.then(result => {
+			if (result) {
+				response.json(result)
+			}
+			else {
+				response.status(404).end()
+			}
+		})
+		.catch(error => next(error))
 })
 
 app.post('/api/persons/', (request, response, next) => {
@@ -84,11 +63,12 @@ app.post('/api/persons/', (request, response, next) => {
 		return
 	}
 	const person = new Person({ name: entry.name, number: entry.number })
-	person.save().then(result => {
-		console.log(`added ${person.name} number ${person.number} to phonebook`)
-		response.json(entry)
-	})
-	.catch(error => next(error))
+	person.save()
+		.then(result => {
+			console.log(`added ${person.name} number ${person.number} to phonebook`)
+			response.json(entry)
+		})
+		.catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -97,23 +77,25 @@ app.put('/api/persons/:id', (request, response, next) => {
 		response.status(400).json({ error: 'missing name or number' })
 		return
 	}
-	Person.findByIdAndUpdate(request.params.id, {number: entry.number }, {runValidators: true, new: true }).then(result => {
-		console.log(result)
-		if (!result) {
-			response.status(404).json({ error: `Could not find entry with name ${entry.name}`})
-		}
-		else {
-			response.json(result)
-		}
-	})
-	.catch(error => next(error))
+	Person.findByIdAndUpdate(request.params.id, { number: entry.number }, { runValidators: true, new: true })
+		.then(result => {
+			console.log(result)
+			if (!result) {
+				response.status(404).json({ error: `Could not find entry with name ${entry.name}` })
+			}
+			else {
+				response.json(result)
+			}
+		})
+		.catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
-	Person.findByIdAndRemove(request.params.id).then(result => {
-		response.status(204).end()
-	})
-	.catch(error => next(error))
+	Person.findByIdAndRemove(request.params.id)
+		.then(result => {
+			response.status(204).end()
+		})
+		.catch(error => next(error))
 })
 
 const errorHandler = (error, request, response, next) => {
@@ -125,7 +107,7 @@ const errorHandler = (error, request, response, next) => {
 		return response.status(400).json({ error: error.message })
 	}
 	next(error)
-} 
+}
 
 app.use(errorHandler)
 
