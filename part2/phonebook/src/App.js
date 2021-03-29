@@ -58,21 +58,39 @@ const App = () => {
 	const [ notif, setNotif ] = useState(null)
 	const [ error, setError ] = useState(false)
 	
-	useEffect(() => {
+	const refreshList = () => {
 		personService.getAll().then(x => setPersons(x))
 			.catch(error => {
 				if (!error.response) {
 					setNotif('Could not connect to server.')
 				}
 				else {
-					setNotif(`Failed to get phonebook`)
+					setNotif('Failed to get phonebook')
 				}
 				setError(true)
 				setTimeout(() => {
 					setNotif(null)
 					setError(false)
-				}, 5000)
+				})
 			})
+	}
+
+	useEffect(() => {
+		// personService.getAll().then(x => setPersons(x))
+		// 	.catch(error => {
+		// 		if (!error.response) {
+		// 			setNotif('Could not connect to server.')
+		// 		}
+		// 		else {
+		// 			setNotif(`Failed to get phonebook`)
+		// 		}
+		// 		setError(true)
+		// 		setTimeout(() => {
+		// 			setNotif(null)
+		// 			setError(false)
+		// 		}, 5000)
+		// 	})
+		refreshList()
 	}, [])
 
 	const handleAdd = (event) => {
@@ -92,11 +110,12 @@ const App = () => {
 						}, 5000)
 					})
 					.catch(error => {
+						refreshList()
 						if (!error.response) {
 							setNotif('Could not connect to server.')
 						}
 						else {
-							setNotif(`Information of ${newEntry.name} has already been removed from server`)
+							setNotif(error.response.data.error)
 							setPersons(persons.filter(person => person.name !== newEntry.name))
 						}
 						setError(true)
@@ -117,11 +136,12 @@ const App = () => {
 					}, 5000)
 				})
 				.catch(error => {
+					refreshList()
 					if (!error.response) {
 						setNotif('Could not connect to server.')
 					}
 					else {
-						setNotif(`Unable to create new entry for ${newEntry.name}`)
+						setNotif(error.response.data.error)
 					}
 					setError(true)
 					setTimeout(() => {
@@ -162,6 +182,7 @@ const App = () => {
 					}, 5000)
 				})
 				.catch(error => {
+					refreshList()
 					if (!error.response) {
 						setNotif('Could not connect to server.')
 					}

@@ -80,7 +80,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 app.post('/api/persons/', (request, response, next) => {
 	const entry = request.body
 	if (!entry.number || !entry.name || !entry) {
-		response.status(400).send({ error: 'missing name or number' })
+		response.status(400).json({ error: 'missing name or number' })
 		return
 	}
 	const person = new Person({ name: entry.name, number: entry.number })
@@ -94,12 +94,17 @@ app.post('/api/persons/', (request, response, next) => {
 app.put('/api/persons/:id', (request, response, next) => {
 	const entry = request.body
 	if (!entry.number || !entry.name || !entry) {
-		response.status(400).send({ error: 'missing name or number' })
+		response.status(400).json({ error: 'missing name or number' })
 		return
 	}
-	const person = {name: entry.name, number: entry.number }
-	Person.findByIdAndUpdate(request.params.id, person, {new: true }).then(result => {
-		response.json(result)
+	Person.findByIdAndUpdate(request.params.id, {number: entry.number }, {runValidators: true, new: true }).then(result => {
+		console.log(result)
+		if (!result) {
+			response.status(404).json({ error: `Could not find entry with name ${entry.name}`})
+		}
+		else {
+			response.json(result)
+		}
 	})
 	.catch(error => next(error))
 })
@@ -114,7 +119,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
 const errorHandler = (error, request, response, next) => {
 	console.log(error.message)
 	if (error.name === 'CastError') {
-		return response.status(400).send({ error: 'malformed id' })
+		return response.status(400).json({ error: 'malformed id' })
 	}
 	else if (error.name === 'ValidationError') {
 		return response.status(400).json({ error: error.message })

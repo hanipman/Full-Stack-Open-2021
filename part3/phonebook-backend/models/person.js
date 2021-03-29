@@ -17,12 +17,24 @@ const personSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        validate: {
+            validator: (v) => {
+                return /^[a-zA-Z]{3,}/.test(v)
+            },
+            message: props => `Name must be at least 3 characters`
+        }
     },
     number: {
         type: String,
         required: true,
-        unique: false
+        unique: false,
+        validate: {
+            validator: (v) => {
+                return /^\d(-?\d){8,}$/.test(v)
+            },
+            message: props => `Phone number must be at least 8 digits`
+        }
     }
 })
 
