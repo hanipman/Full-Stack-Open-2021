@@ -7,6 +7,9 @@ blogsRouter.get('/', async (request, response) => {
 })
 
 blogsRouter.post('/', async (request, response) => {
+	if (!request.body.title || !request.body.author) {
+		response.status(400).json({ error: 'malformed title or author' })
+	}
 	const blog = new Blog(request.body)
 	await blog.save()
 	response.status(201).json(request.body)

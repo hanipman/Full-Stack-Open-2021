@@ -67,6 +67,31 @@ test('test default likes to 0 for new blogs', async () => {
 	expect(result[0].likes).toBe(0)
 })
 
+test('blogs with no title or author should return 400 error', async () => {
+	const newBlogNoTitle = {
+		author: 'new author',
+		url: 'new url'
+	}
+	const newBlogNoAuthor = {
+		title: 'new title',
+		url: 'new url'
+	}
+
+	const response_no_title = await api
+		.post('/api/blogs')
+		.send(newBlogNoTitle)
+		.expect(400)
+
+	expect(response_no_title.body.error).toEqual('malformed title or author')
+
+	const response_no_author = await api
+		.post('/api/blogs')
+		.send(newBlogNoAuthor)
+		.expect(400)
+
+	expect(response_no_author.body.error).toEqual('malformed title or author')
+})
+
 afterAll(() => {
 	mongoose.connection.close()
 })
