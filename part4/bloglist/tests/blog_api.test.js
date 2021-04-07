@@ -47,6 +47,26 @@ test('create new blog post', async () => {
 	expect(allBlogs.body).toHaveLength(7)
 })
 
+test('test default likes to 0 for new blogs', async () => {
+	const newBlog = {
+		title: 'new title',
+		author: 'new author',
+		url: 'new url',
+	}
+
+	const response = await api
+		.post('/api/blogs')
+		.send(newBlog)
+
+		
+	expect(response.body).toEqual(newBlog)
+
+	const getBlog = await api.get('/api/blogs')
+	const result = getBlog.body.filter(blog => blog.title === 'new title')
+	console.log(result)
+	expect(result[0].likes).toBe(0)
+})
+
 afterAll(() => {
 	mongoose.connection.close()
 })
