@@ -9,10 +9,16 @@ blogsRouter.get('/', async (request, response) => {
 blogsRouter.post('/', async (request, response) => {
 	if (!request.body.title || !request.body.author) {
 		response.status(400).json({ error: 'malformed title or author' })
+		return
 	}
 	const blog = new Blog(request.body)
-	await blog.save()
-	response.status(201).json(request.body)
+	const newBlog = await blog.save()
+	response.status(201).json(newBlog)
+})
+
+blogsRouter.put('/:id', async (request, response) => {
+	const result = await Blog.findByIdAndUpdate(request.params.id, request.body, { new: true })
+	response.json(result)
 })
 
 blogsRouter.delete('/:id', async (request, response) => {

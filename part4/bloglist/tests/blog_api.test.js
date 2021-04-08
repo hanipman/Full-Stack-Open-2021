@@ -1,4 +1,3 @@
-const { TestScheduler } = require('@jest/core')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const helper = require('./test_helper')
@@ -6,7 +5,7 @@ const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
 
-beforeEach(async() => {
+beforeEach(async () => {
 	await Blog.deleteMany({})
 
 	const blogObjects = helper.initialBlogs
@@ -18,8 +17,8 @@ beforeEach(async() => {
 describe('testing get', () => {
 	test('blogs returned as json', async () => {
 		const response = await api.get('/api/blogs')
-		
-		expect(response.body).toHaveLength(6)
+		const contents = response.body
+		expect(contents).toHaveLength(6)
 	})
 
 	test('checks that id of any blog is defined', async () => {
@@ -35,14 +34,14 @@ describe('testing post', () => {
 			title: 'new title',
 			author: 'new author',
 			url: 'new url',
-			likes: '16'
+			likes: 16
 		}
 
 		const response = await api
 			.post('/api/blogs')
 			.send(newBlog)
 
-		expect(response.body).toEqual(newBlog)
+		expect(response.body.likes).toBe(newBlog.likes)
 
 		const allBlogs = await api.get('/api/blogs')
 
@@ -61,12 +60,11 @@ describe('testing post', () => {
 			.send(newBlog)
 
 			
-		expect(response.body).toEqual(newBlog)
+		expect(response.body.likes).toBe(0)
 
-		const getBlog = await api.get('/api/blogs')
-		const result = getBlog.body.filter(blog => blog.title === 'new title')
-		console.log(result)
-		expect(result[0].likes).toBe(0)
+		const allBlogs = await api.get('/api/blogs')
+
+		expect(allBlogs.body).toHaveLength(7)
 	})
 
 	test('blogs with no title or author should return 400 error', async () => {
@@ -92,6 +90,20 @@ describe('testing post', () => {
 			.expect(400)
 
 		expect(response_no_author.body.error).toEqual('malformed title or author')
+	})
+})
+
+describe('testing put', () => {
+	test('update title', async () => {
+		const update = {
+			likes: 215
+		}
+		const id = helper.initialBlogs[0]._id
+		const result = await api
+			.put(`/api/blogs/${id}`)
+			.send(update)
+			.expect(200)
+		expect(result.body.likes).toBe(update.likes)
 	})
 })
 
