@@ -51,6 +51,25 @@ const initialBlogs = [
 	}
 ]
 
+initialUsers = [
+	{
+		username: 'username_1',
+		name: 'name_1',
+		password: 'password_1'
+	},
+	{
+		username: 'username_2',
+		name: 'name_2',
+		password: 'password_2'
+	},
+	{
+		username: 'username_3',
+		name: 'name_3',
+		password: 'password_3'
+	},
+]
+
 module.exports = {
-	initialBlogs
+	initialBlogs,
+	initialUsers
 }
