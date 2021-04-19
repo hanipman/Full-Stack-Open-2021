@@ -2,6 +2,7 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+const { userExtractor } = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response) => {
 	const blogs = await Blog
@@ -11,14 +12,12 @@ blogsRouter.get('/', async (request, response) => {
 	response.json(blogs)
 })
 
-blogsRouter.post('/', async (request, response) => {
+blogsRouter.post('/', userExtractor, async (request, response) => {
 	if (!request.body.title || !request.body.author) {
 		response.status(400).json({ error: 'malformed title or author' })
 		return
 	}
-	const token = request.token
-	const decodedToken = jwt.verify(token, process.env.SECRET)
-	const user = await User.findById(decodedToken.id)
+	const user = request.user
 	const blog = new Blog({
 		title: request.body.title,
 		author: request.body.author,
@@ -37,10 +36,8 @@ blogsRouter.put('/:id', async (request, response) => {
 	response.json(result)
 })
 
-blogsRouter.delete('/:id', async (request, response) => {
-	const token = request.token
-	const decodedToken = jwt.verify(token, process.env.SECRET)
-	const user = await User.findById(decodedToken.id)
+blogsRouter.delete('/:id', userExtractor, async (request, response) => {
+	const user = request.user
 	if (!user.blogs.includes(request.params.id)) {
 		return response.status(403).json({
 			error: 'user does not have permission to delete blog'
