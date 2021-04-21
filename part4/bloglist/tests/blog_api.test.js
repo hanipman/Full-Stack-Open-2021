@@ -4,17 +4,42 @@ const helper = require('./test_helper')
 const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
+const User = require('../models/user')
+
+const login = async () => {
+	const login_det = helper.initialUsers[0]
+	delete login_det.name
+
+	const user = await api
+		.post('/api/login')
+		.send(login_det)
+	return user.body.token
+}
 
 beforeEach(async () => {
 	await Blog.deleteMany({})
 
 	const blogObjects = helper.initialBlogs
 		.map(blog => new Blog(blog))
-	const promiseArray = blogObjects.map(blog => blog.save())
-	await Promise.all(promiseArray)
+	const blogPromises = blogObjects.map(blog => blog.save())
+	await Promise.all(blogPromises)
+
+	await User.deleteMany({})
+
+	await Promise.all(helper.initialUsers.map(async (user) => {
+		await api.post('/api/users').send(user)
+	}))
+
+	// const login_det = helper.initialUsers[0]
+	// delete login_det.name
+
+	// const user = await api
+	// 	.post('/api/login')
+	// 	.send(login_det)
+	// const token = user.body.token
 })
 
-describe('testing get', () => {
+describe('testing get blogs', () => {
 	test('blogs returned as json', async () => {
 		const response = await api.get('/api/blogs')
 		const contents = response.body
@@ -30,6 +55,8 @@ describe('testing get', () => {
 
 describe('testing post', () => {
 	test('create new blog post', async () => {
+		const token = await login()
+
 		const newBlog = {
 			title: 'new title',
 			author: 'new author',
@@ -39,7 +66,9 @@ describe('testing post', () => {
 
 		const response = await api
 			.post('/api/blogs')
+			.auth(token, { type: 'bearer' })
 			.send(newBlog)
+			.expect(201)
 
 		expect(response.body.likes).toBe(newBlog.likes)
 
@@ -49,6 +78,8 @@ describe('testing post', () => {
 	})
 
 	test('test default likes to 0 for new blogs', async () => {
+		const token = await login()
+
 		const newBlog = {
 			title: 'new title',
 			author: 'new author',
@@ -57,6 +88,7 @@ describe('testing post', () => {
 
 		const response = await api
 			.post('/api/blogs')
+			.auth(token, { type: 'bearer' })
 			.send(newBlog)
 
 			
@@ -68,6 +100,8 @@ describe('testing post', () => {
 	})
 
 	test('blogs with no title or author should return 400 error', async () => {
+		const token = await login()
+
 		const newBlogNoTitle = {
 			author: 'new author',
 			url: 'new url'
@@ -79,6 +113,7 @@ describe('testing post', () => {
 
 		const response_no_title = await api
 			.post('/api/blogs')
+			.auth(token, { type: 'bearer' })
 			.send(newBlogNoTitle)
 			.expect(400)
 
@@ -86,10 +121,25 @@ describe('testing post', () => {
 
 		const response_no_author = await api
 			.post('/api/blogs')
+			.auth(token, { type: 'bearer' })
 			.send(newBlogNoAuthor)
 			.expect(400)
 
 		expect(response_no_author.body.error).toEqual('malformed title or author')
+	})
+
+	test('creating blog without proper authorization returns 401', async () => {
+		const newBlog = {
+			title: 'new title',
+			author: 'new author',
+			url: 'new url',
+			likes: 16
+		}
+
+		await api
+			.post('/api/blogs')
+			.send(newBlog)
+			.expect(401)
 	})
 })
 
@@ -109,14 +159,59 @@ describe('testing put', () => {
 
 describe('testing delete', () => {
 	test('delete a blog by id', async () => {
-		const id = helper.initialBlogs[0]._id
+		const token = await login()
+
+		const newBlog = {
+			title: 'abcd',
+			author: 'efgh',
+			url: 'ijkl',
+			likes: 16
+		}	
+
+		await api
+			.post('/api/blogs')
+			.auth(token, { type: 'bearer' })
+			.send(newBlog)
+
+		const list = await api.get('/api/blogs')
+
+		const user_blog = list.body.filter(blog => blog.title === newBlog.title)[0]
+
+		const id = user_blog.id
+
 		await api
 			.delete(`/api/blogs/${id}`)
+			.auth(token, { type: 'bearer' })
 			.expect(204)
 
 		const response = await api.get('/api/blogs')
 		
-		expect(response.body).toHaveLength(5)
+		expect(response.body).toHaveLength(6)
+	})
+	test('delete a blog without proper authorization returns 401', async () => {
+		const token = await login()
+
+		const newBlog = {
+			title: 'abcd',
+			author: 'efgh',
+			url: 'ijkl',
+			likes: 16
+		}	
+
+		await api
+			.post('/api/blogs')
+			.auth(token, { type: 'bearer' })
+			.send(newBlog)
+
+		const list = await api.get('/api/blogs')
+
+		const user_blog = list.body.filter(blog => blog.title === newBlog.title)[0]
+
+		const id = user_blog.id
+
+		await api
+			.delete(`/api/blogs/${id}`)
+			.expect(401)
 	})
 })
 
