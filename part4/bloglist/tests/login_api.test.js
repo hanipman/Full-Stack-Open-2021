@@ -23,6 +23,7 @@ describe('test login', () => {
 			})
 			.expect(200)
 	})
+
 	test('test missing username on login', async () => {
 		await api
 			.post('/api/login')
@@ -31,6 +32,7 @@ describe('test login', () => {
 			})
 			.expect(401)
 	})
+
 	test('test missing password on login', async () => {
 		await api
 			.post('/api/login')
@@ -39,6 +41,7 @@ describe('test login', () => {
 			})
 			.expect(401)
 	})
+
 	test('test incorrect username', async () => {
 		await api
 			.post('/api/login')
@@ -48,6 +51,7 @@ describe('test login', () => {
 			})
 			.expect(401)
 	})
+	
 	test('test incorrect password', async () => {
 		await api
 			.post('/api/login')

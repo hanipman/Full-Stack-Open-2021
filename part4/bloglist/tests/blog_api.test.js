@@ -29,14 +29,6 @@ beforeEach(async () => {
 	await Promise.all(helper.initialUsers.map(async (user) => {
 		await api.post('/api/users').send(user)
 	}))
-
-	// const login_det = helper.initialUsers[0]
-	// delete login_det.name
-
-	// const user = await api
-	// 	.post('/api/login')
-	// 	.send(login_det)
-	// const token = user.body.token
 })
 
 describe('testing get blogs', () => {
