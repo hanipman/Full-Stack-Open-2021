@@ -22,11 +22,23 @@ const App = () => {
       const user = await loginService.login({
         username, password
       })
+      window.localStorage.setItem(
+        'loggedBlogappUser', JSON.stringify(user)
+      )
       setUser(user)
+      setUsername('')
+      setPassword('')
     }
     catch (exception) {
       console.log('wrong credentials')
     }
+  }
+
+  const handleLogout = (event) => {
+    event.preventDefault()
+
+    setUser(null)
+    window.localStorage.removeItem('loggedBlogappUser')
   }
 
   const loginForm = () => {
@@ -66,6 +78,7 @@ const App = () => {
         </div>
         <div>
           {user.name} logged in
+          <button type='button' onClick={handleLogout}>logout</button>
         </div>
         <br/>
         <div>
