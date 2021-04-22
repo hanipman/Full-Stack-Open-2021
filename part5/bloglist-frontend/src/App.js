@@ -3,6 +3,17 @@ import Blog from './components/Blog'
 import blogsService from './services/blogs'
 import loginService from './services/login'
 
+const Notification = ({ notif, error }) => {
+  if (notif === null) {
+    return null
+  }
+  return (
+    <div className={error ? 'error' : 'notif'}>
+      {notif}
+    </div>
+  )
+}
+
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
@@ -11,6 +22,8 @@ const App = () => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
+  const [notif, setNotif] = useState(null)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     blogsService.getAll().then(blogs => {
@@ -34,7 +47,12 @@ const App = () => {
       setPassword('')
     }
     catch (exception) {
-      console.log('wrong credentials')
+      setNotif('wrong username or password')
+      setError(true)
+      setTimeout(() => {
+        setNotif(null)
+        setError(false)
+      }, 5000)
     }
   }
 
@@ -56,6 +74,23 @@ const App = () => {
     blogsService.create(blog)
       .then(response => {
         setBlogs(blogs.concat(response))
+        setNotif(`a new blog ${blog.title} by ${blog.author} added`)
+        setTimeout(() => {
+          setNotif(null)
+        }, 5000)
+      })
+      .catch(error => {
+        if (!error.response) {
+          setNotif('Could not connect to server')
+        }
+        else {
+          setNotif(error.response.data.error)
+        }
+        setError(true)
+        setTimeout(() => {
+          setNotif(null)
+          setError(false)
+        }, 5000)
       })
   }
 
@@ -135,6 +170,7 @@ const App = () => {
 
   return (
     <div>
+      <Notification notif={notif} error={error} />
       {user === null ? loginForm() : blogForm()}
     </div>
   )
