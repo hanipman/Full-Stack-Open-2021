@@ -12,8 +12,7 @@ const getAll = () => {
   return request.then(response => response.data)
 }
 
-const create = (newBlog
-  ) => {
+const create = (newBlog) => {
     const config = {
       headers: { Authorization: token }
     }

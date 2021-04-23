@@ -24,10 +24,17 @@ const App = () => {
 	const [notif, setNotif] = useState(null)
 	const [error, setError] = useState(false)
 
-	useEffect(() => {
+	const refreshBlogList = () => {
 		blogsService.getAll().then(blogs => {
 			setBlogs( blogs )
-		})  
+		})
+	}
+
+	useEffect(() => {
+		// blogsService.getAll().then(blogs => {
+		// 	setBlogs( blogs )
+		// })
+		refreshBlogList()
 	}, [])
 
 	const handleLogin = async (event) => {
@@ -66,7 +73,7 @@ const App = () => {
 		blogFormRef.current.toggleVisibility()
 		blogsService.create(blogObject)
 			.then(response => {
-				setBlogs(blogs.concat(response))
+				refreshBlogList()
 				setNotif(`a new blog ${blogObject.title} by ${blogObject.author} added`)
 				setTimeout(() => {
 					setNotif(null)
