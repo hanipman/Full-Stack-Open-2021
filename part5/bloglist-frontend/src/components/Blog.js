@@ -31,6 +31,7 @@ const Blog = ({ blog, update, username }) => {
 
 	const handleRemove = (event) => {
 		event.preventDefault()
+
 		if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
 			blogsService.remove(blog.id)
 				.then(update())

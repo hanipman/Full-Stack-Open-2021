@@ -41,7 +41,7 @@ const BlogForm = ({ createBlog }) => {
 						value={title}
 						onChange={handleTitleChange}
 					/>
-					</div>
+				</div>
 				<div>
 					author:
 					<input

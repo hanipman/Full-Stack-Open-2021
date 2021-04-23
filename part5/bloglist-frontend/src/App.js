@@ -36,7 +36,7 @@ const App = () => {
 
 	const handleLogin = async (event) => {
 		event.preventDefault()
-		
+
 		try {
 			const user = await loginService.login({
 				username, password
@@ -69,7 +69,7 @@ const App = () => {
 	const addBlog = (blogObject) => {
 		blogFormRef.current.toggleVisibility()
 		blogsService.create(blogObject)
-			.then(response => {
+			.then(() => {
 				refreshBlogList()
 				setNotif(`a new blog ${blogObject.title} by ${blogObject.author} added`)
 				setTimeout(() => {
@@ -102,7 +102,7 @@ const App = () => {
 							type='text'
 							value={username}
 							name='Username'
-							onChange={({ target }) => setUsername(target.value)}  
+							onChange={({ target }) => setUsername(target.value)}
 						/>
 					</div>
 					<div>
