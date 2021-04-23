@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import blogsService from '../services/blogs'
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, update }) => {
 	const [viewDetails, setViewDetails] = useState(false)
 	const [likes, setLikes] = useState(0)
 
@@ -24,6 +24,7 @@ const Blog = ({ blog }) => {
 		console.log(blog.id)
 		blogsService.update(newBlog, blog.id)
 			.then(setLikes(blog.likes))
+		update()
 	}
 
 	const detailView = () => {

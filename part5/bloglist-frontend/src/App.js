@@ -26,14 +26,11 @@ const App = () => {
 
 	const refreshBlogList = () => {
 		blogsService.getAll().then(blogs => {
-			setBlogs( blogs )
+			setBlogs( blogs.sort((a, b) => b.likes - a.likes) )
 		})
 	}
 
 	useEffect(() => {
-		// blogsService.getAll().then(blogs => {
-		// 	setBlogs( blogs )
-		// })
 		refreshBlogList()
 	}, [])
 
@@ -136,7 +133,7 @@ const App = () => {
 					<Togglable buttonLabel='create new blog' ref={blogFormRef}>
 						<BlogForm createBlog={addBlog} />
 					</Togglable>
-					{blogs.map(blog => <Blog key={blog.id} blog={blog}/>)}
+					{blogs.map(blog => <Blog key={blog.id} blog={blog} update={refreshBlogList} />)}
 				</div>
 			</div>
 		)
