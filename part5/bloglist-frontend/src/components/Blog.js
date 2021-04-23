@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import blogsService from '../services/blogs'
 
-const Blog = ({ blog, update }) => {
+const Blog = ({ blog, update, username }) => {
 	const [viewDetails, setViewDetails] = useState(false)
 	const [likes, setLikes] = useState(0)
 
@@ -21,10 +21,19 @@ const Blog = ({ blog, update }) => {
 			user: blog.user.id
 		}
 		blog.likes = blog.likes + 1
-		console.log(blog.id)
 		blogsService.update(newBlog, blog.id)
-			.then(setLikes(blog.likes))
-		update()
+			.then(() => {
+				setLikes(blog.likes)
+				update()
+			})
+	}
+
+	const handleRemove = (event) => {
+		event.preventDefault()
+		if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+			blogsService.remove(blog.id)
+				.then(update())
+		}
 	}
 
 	const detailView = () => {
@@ -42,6 +51,7 @@ const Blog = ({ blog, update }) => {
 				<div>
 					{blog.user.name}
 				</div>
+				{username === blog.user.username ? <button onClick={handleRemove}>remove</button> : null}
 			</div>
 		)
 	}

@@ -21,11 +21,18 @@ const create = (newBlog) => {
 }
 
 const update = (newBlog, blog_id) => {
-	console.log(newBlog.likes)
 	const request = axios.put(`${baseUrl}/${blog_id}`, newBlog)
 	return request.then(response => response.data)
 }
 
-const blogsService = { getAll, create, update, setToken }
+const remove = (blog_id) => {
+	const config = {
+		headers: { Authorization: token }
+	}
+	const request = axios.delete(`${baseUrl}/${blog_id}`, config)
+	return request.then(response => response.data)
+}
+
+const blogsService = { getAll, create, update, remove, setToken }
 
 export default blogsService
