@@ -1,12 +1,29 @@
 import React, { useState } from 'react'
+import blogsService from '../services/blogs'
 
 const Blog = ({ blog }) => {
 	const [viewDetails, setViewDetails] = useState(false)
+	const [likes, setLikes] = useState(0)
 
 	const handleView = (event) => {
 		event.preventDefault()
-		console.log(blog)
+		setLikes(blog.likes)
 		setViewDetails(!viewDetails)
+	}
+
+	const handleLike = (event) => {
+		event.preventDefault()
+		const newBlog = {
+			likes: blog.likes + 1,
+			title: blog.title,
+			author: blog.author,
+			url: blog.url,
+			user: blog.user.id
+		}
+		blog.likes = blog.likes + 1
+		console.log(blog.id)
+		blogsService.update(newBlog, blog.id)
+			.then(setLikes(blog.likes))
 	}
 
 	const detailView = () => {
@@ -16,7 +33,10 @@ const Blog = ({ blog }) => {
 					{blog.url}
 				</div>
 				<div>
-					likes {blog.likes}
+					likes {likes}
+					<button onClick={handleLike}>
+						like
+					</button>
 				</div>
 				<div>
 					{blog.user.name}
