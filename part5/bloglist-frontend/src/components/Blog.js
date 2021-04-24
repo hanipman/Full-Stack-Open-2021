@@ -1,31 +1,24 @@
 import React, { useState } from 'react'
-import blogsService from '../services/blogs'
+// import blogsService from '../services/blogs'
 import PropTypes from 'prop-types'
 
-const Blog = ({ blog, removeBlog, username }) => {
+const Blog = ({ blog, handleLike, removeBlog, username }) => {
 	const [viewDetails, setViewDetails] = useState(false)
-	const [likes, setLikes] = useState(0)
 
 	const handleView = (event) => {
 		event.preventDefault()
-		setLikes(blog.likes)
 		setViewDetails(!viewDetails)
 	}
 
-	const handleLike = (event) => {
+	const addLike = (event) => {
 		event.preventDefault()
-		const newBlog = {
+		handleLike({
 			likes: blog.likes + 1,
 			title: blog.title,
 			author: blog.author,
 			url: blog.url,
 			user: blog.user.id
-		}
-		blog.likes = blog.likes + 1
-		blogsService.update(newBlog, blog.id)
-			.then(() => {
-				setLikes(blog.likes)
-			})
+		}, blog.id)
 	}
 
 	const detailView = () => {
@@ -35,8 +28,8 @@ const Blog = ({ blog, removeBlog, username }) => {
 					{blog.url}
 				</div>
 				<div>
-					likes {likes}
-					<button onClick={handleLike}>
+					likes {blog.likes}
+					<button onClick={addLike}>
 						like
 					</button>
 				</div>
@@ -61,6 +54,7 @@ const Blog = ({ blog, removeBlog, username }) => {
 
 Blog.propTypes = {
 	blog: PropTypes.object.isRequired,
+	handleLike: PropTypes.func,
 	removeBlog: PropTypes.func,
 	username: PropTypes.string.isRequired
 }

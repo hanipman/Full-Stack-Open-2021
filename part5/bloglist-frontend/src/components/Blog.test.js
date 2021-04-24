@@ -5,6 +5,7 @@ import Blog from './Blog'
 
 describe('<Blog />', () => {
 	let component
+	let removeHandler, likeHandler
 
 	beforeEach(() => {
 		const username = 'username'
@@ -21,10 +22,11 @@ describe('<Blog />', () => {
 			}
 		}
 
-		const mockHandler = jest.fn()
+		removeHandler = jest.fn()
+		likeHandler = jest.fn()
 
 		component = render(
-			<Blog blog={blog} removeBlog={mockHandler} username={username}/>
+			<Blog blog={blog} handleLike={likeHandler} removeBlog={removeHandler} username={username}/>
 		)
 	})
 
@@ -36,7 +38,7 @@ describe('<Blog />', () => {
 		expect(view_button).toBeDefined()
 
 		expect(component.container).not.toHaveTextContent('url')
-		expect(component.container).not.toHaveTextContent('likes')
+		expect(component.container).not.toHaveTextContent('likes 1')
 		expect(component.container).not.toHaveTextContent('name')
 	})
 
@@ -45,7 +47,17 @@ describe('<Blog />', () => {
 		fireEvent.click(view_button)
 
 		expect(component.container).toHaveTextContent('url')
-		expect(component.container).toHaveTextContent('likes')
+		expect(component.container).toHaveTextContent('likes 1')
 		expect(component.container).toHaveTextContent('name')
+	})
+
+	test('when like button is clicked twice, handler is called twice', () => {
+		const view_button = component.getByText('view')
+		fireEvent.click(view_button)
+		const like_button = component.getByText('like')
+		fireEvent.click(like_button)
+		fireEvent.click(like_button)
+
+		expect(likeHandler.mock.calls).toHaveLength(2)
 	})
 })

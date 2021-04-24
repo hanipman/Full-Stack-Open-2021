@@ -25,11 +25,12 @@ const App = () => {
 	const [error, setError] = useState(false)
 
 	useEffect(() => {
+		console.log('ran')
 		if (!blogs.length) {
 			blogsService.getAll().then(blogs => setBlogs(blogs))
 		}
 		setBlogs(blogs.sort((a, b) => b.likes - a.likes))
-	}, [])
+	}, [blogs])
 
 	const handleLogin = async (event) => {
 		event.preventDefault()
@@ -88,6 +89,18 @@ const App = () => {
 			})
 	}
 
+	const handleLike = (blogObject, blog_id) => {
+		blogsService.update(blogObject, blog_id)
+			.then(() => {
+				setBlogs(blogs.filter((blog) => {
+					if (blog.id === blog_id) {
+						blog.likes = blog.likes + 1
+					}
+					return blog
+				}))
+			})
+	}
+
 	const removeBlog = (event) => {
 		event.preventDefault()
 		const removed_blog = blogs.filter(blog => blog.id === event.target.value)[0]
@@ -139,7 +152,7 @@ const App = () => {
 					<Togglable buttonLabel='create new blog' ref={blogFormRef}>
 						<BlogForm createBlog={addBlog} />
 					</Togglable>
-					{blogs.map(blog => <Blog key={blog.id} blog={blog} removeBlog={removeBlog} username={user.username} />)}
+					{blogs.map(blog => <Blog key={blog.id} blog={blog} handleLike={handleLike} removeBlog={removeBlog} username={user.username} />)}
 				</div>
 			</div>
 		)
