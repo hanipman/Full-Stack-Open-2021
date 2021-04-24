@@ -24,14 +24,11 @@ const App = () => {
 	const [notif, setNotif] = useState(null)
 	const [error, setError] = useState(false)
 
-	const refreshBlogList = () => {
-		blogsService.getAll().then(blogs => {
-			setBlogs( blogs.sort((a, b) => b.likes - a.likes) )
-		})
-	}
-
 	useEffect(() => {
-		refreshBlogList()
+		if (!blogs.length) {
+			blogsService.getAll().then(blogs => setBlogs(blogs))
+		}
+		setBlogs(blogs.sort((a, b) => b.likes - a.likes))
 	}, [])
 
 	const handleLogin = async (event) => {
@@ -69,8 +66,8 @@ const App = () => {
 	const addBlog = (blogObject) => {
 		blogFormRef.current.toggleVisibility()
 		blogsService.create(blogObject)
-			.then(() => {
-				refreshBlogList()
+			.then((response) => {
+				setBlogs(blogs.concat(response))
 				setNotif(`a new blog ${blogObject.title} by ${blogObject.author} added`)
 				setTimeout(() => {
 					setNotif(null)
@@ -89,6 +86,15 @@ const App = () => {
 					setError(false)
 				}, 5000)
 			})
+	}
+
+	const removeBlog = (event) => {
+		event.preventDefault()
+		const removed_blog = blogs.filter(blog => blog.id === event.target.value)[0]
+		if (window.confirm(`Remove blog ${removed_blog.title} by ${removed_blog.author}?`)) {
+			blogsService.remove(removed_blog.id)
+				.then(setBlogs(blogs.filter(blog => blog.id !== removed_blog.id)))
+		}
 	}
 
 	const loginForm = () => {
@@ -133,7 +139,7 @@ const App = () => {
 					<Togglable buttonLabel='create new blog' ref={blogFormRef}>
 						<BlogForm createBlog={addBlog} />
 					</Togglable>
-					{blogs.map(blog => <Blog key={blog.id} blog={blog} update={refreshBlogList} username={user.username} />)}
+					{blogs.map(blog => <Blog key={blog.id} blog={blog} removeBlog={removeBlog} username={user.username} />)}
 				</div>
 			</div>
 		)
