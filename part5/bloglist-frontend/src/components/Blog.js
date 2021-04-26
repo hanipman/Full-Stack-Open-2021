@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-// import blogsService from '../services/blogs'
 import PropTypes from 'prop-types'
 
 const Blog = ({ blog, handleLike, removeBlog, username }) => {
