@@ -25,12 +25,11 @@ const App = () => {
 	const [error, setError] = useState(false)
 
 	useEffect(() => {
-		console.log('ran')
-		if (!blogs.length) {
+		if (!user && !blogs.length) {
 			blogsService.getAll().then(blogs => setBlogs(blogs))
 		}
 		setBlogs(blogs.sort((a, b) => b.likes - a.likes))
-	}, [blogs])
+	}, [])
 
 	const handleLogin = async (event) => {
 		event.preventDefault()
@@ -118,6 +117,7 @@ const App = () => {
 					<div>
 						username
 						<input
+							id='login_username'
 							type='text'
 							value={username}
 							name='Username'
@@ -127,6 +127,7 @@ const App = () => {
 					<div>
 						password
 						<input
+							id='login_password'
 							type='text'
 							value={password}
 							name='Password'
