@@ -99,5 +99,52 @@ describe('Blog app', function() {
 				cy.contains('blog_title blog_author').should('not.exist')
 			})
 		})
+
+		it('Blogs are ordered by number of likes', function() {
+			cy.createBlog({
+				title: 'title_1',
+				author: 'author_1',
+				url: 'url_1'
+			})
+			cy.createBlog({
+				title: 'title_2',
+				author: 'author_2',
+				url: 'url_2'
+			})
+			cy.createBlog({
+				title: 'title_3',
+				author: 'author_3',
+				url: 'url_3'
+			})
+
+			cy.get('.blog')
+				.then(blog_element => {
+					expect(blog_element[0]).to.contain.text('title_1 author_1')
+					expect(blog_element[1]).to.contain.text('title_2 author_2')
+					expect(blog_element[2]).to.contain.text('title_3 author_3')
+				})
+
+			cy.contains('title_3 author_3').find('#view_button').click()
+			cy.get('#like_button').click()
+
+			cy.get('.blog')
+				.then(blog_element => {
+					expect(blog_element[0]).to.contain.text('title_3 author_3')
+					expect(blog_element[1]).to.contain.text('title_1 author_1')
+					expect(blog_element[2]).to.contain.text('title_2 author_2')
+				})
+
+			cy.contains('title_3 author_3').find('#view_button').click()
+			cy.contains('title_2 author_2').find('#view_button').click()
+			cy.get('#like_button', { timeout: 3000 }).click()
+			cy.get('#like_button', { timeout: 3000 }).click()
+
+			cy.get('.blog')
+				.then(blog_element => {
+					expect(blog_element[0]).to.contain.text('title_2 author_2')
+					expect(blog_element[1]).to.contain.text('title_3 author_3')
+					expect(blog_element[2]).to.contain.text('title_1 author_1')
+				})
+		})
 	})
 })

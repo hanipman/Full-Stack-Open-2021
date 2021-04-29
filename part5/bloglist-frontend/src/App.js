@@ -32,11 +32,14 @@ const App = () => {
 			blogsService.setToken(user.token)
 		}
 
-		if (!user && !blogs.length) {
-			blogsService.getAll().then(blogs => setBlogs(blogs))
+		if (!user && blogs.length === 0) {
+			blogsService.getAll().then(blogs => setBlogs(sortBlogs(blogs)))
 		}
-		setBlogs(blogs.sort((a, b) => b.likes - a.likes))
 	}, [])
+
+	const sortBlogs = (blog_list) => {
+		return blog_list.sort((a, b) => b.likes - a.likes)
+	}
 
 	const handleLogin = async (event) => {
 		event.preventDefault()
@@ -74,7 +77,7 @@ const App = () => {
 		blogFormRef.current.toggleVisibility()
 		blogsService.create(blogObject)
 			.then((response) => {
-				setBlogs(blogs.concat(response))
+				setBlogs(sortBlogs(blogs.concat(response)))
 				setNotif(`a new blog ${blogObject.title} by ${blogObject.author} added`)
 				setTimeout(() => {
 					setNotif(null)
@@ -98,12 +101,12 @@ const App = () => {
 	const handleLike = (blogObject, blog_id) => {
 		blogsService.update(blogObject, blog_id)
 			.then(() => {
-				setBlogs(blogs.filter((blog) => {
+				setBlogs(sortBlogs(blogs.filter((blog) => {
 					if (blog.id === blog_id) {
 						blog.likes = blog.likes + 1
 					}
 					return blog
-				}))
+				})))
 			})
 	}
 
@@ -112,7 +115,7 @@ const App = () => {
 		const removed_blog = blogs.filter(blog => blog.id === event.target.value)[0]
 		if (window.confirm(`Remove blog ${removed_blog.title} by ${removed_blog.author}?`)) {
 			blogsService.remove(removed_blog.id)
-				.then(setBlogs(blogs.filter(blog => blog.id !== removed_blog.id)))
+				.then(setBlogs(sortBlogs(blogs.filter(blog => blog.id !== removed_blog.id))))
 		}
 	}
 
