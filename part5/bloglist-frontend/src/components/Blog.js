@@ -28,7 +28,7 @@ const Blog = ({ blog, handleLike, removeBlog, username }) => {
 				</div>
 				<div>
 					likes {blog.likes}
-					<button onClick={addLike}>
+					<button id='like_button' onClick={addLike}>
 						like
 					</button>
 				</div>
@@ -43,7 +43,7 @@ const Blog = ({ blog, handleLike, removeBlog, username }) => {
 	return (
 		<div className='blog'>
 			{blog.title} {blog.author}
-			<button onClick={handleView}>
+			<button id='view_button' onClick={handleView}>
 				{viewDetails ? 'hide' : 'view'}
 			</button>
 			{viewDetails ? detailView() : null }
