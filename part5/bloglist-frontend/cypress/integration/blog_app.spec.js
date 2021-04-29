@@ -6,8 +6,7 @@ describe('Blog app', function() {
 			username: 'username',
 			password: 'password'
 		}
-		cy.request('POST', 'http://localhost:3003/api/users', user)
-		cy.visit('http://localhost:3000')
+		cy.createUser(user)
 	})
 
 	it('Login form is shown', function() {
@@ -21,6 +20,7 @@ describe('Blog app', function() {
 			cy.get('#login_username').type('username')
 			cy.get('#login_password').type('password')
 			cy.get('#login_button').click()
+			cy.contains('logout').click()
 		})
 
 		it('fails with wrong credentials', function() {
@@ -38,9 +38,7 @@ describe('Blog app', function() {
 
 	describe('When logged in', function() {
 		beforeEach(function() {
-			cy.get('#login_username').type('username')
-			cy.get('#login_password').type('password')
-			cy.get('#login_button').click()
+			cy.login({ username: 'username', password: 'password' })
 		})
 
 		it('A blog can be created', function() {
@@ -59,17 +57,47 @@ describe('Blog app', function() {
 		})
 
 		it('User can like blog', function() {
-			cy.contains('create new blog').click()
-			cy.get('#title_input').type('blog_title')
-			cy.get('#author_input').type('blog_author')
-			cy.get('#url_input').type('blog_url')
-			cy.get('#create_button').click()
+			cy.createBlog({
+				title: 'blog_title',
+				author: 'blog_author',
+				url: 'blog_url'
+			})
 
 			cy.get('#view_button').click()
 			cy.contains('blog_url')
 			cy.contains('likes 0')
 			cy.get('#like_button').click()
 			cy.contains('likes 1')
+		})
+
+		describe('Deleting blogs', function() {
+			beforeEach(function() {
+				cy.createUser({
+					name: 'other_name',
+					username: 'other_username',
+					password: 'other_password'
+				})
+				cy.createBlog({
+					title: 'blog_title',
+					author: 'blog_author',
+					url: 'blog_url'
+				})
+			})
+
+			it('User that did not create blog cannot delete it', function() {
+				cy.login({
+					username: 'other_username',
+					password: 'other_password'
+				})
+				cy.contains('blog_title blog_author').find('#view_button').click()
+				cy.contains('#remove_button').should('not.exist')
+			})
+
+			it('User that created blog can delete it', function() {
+				cy.contains('blog_title blog_author').find('#view_button').click()
+				cy.get('#remove_button').click()
+				cy.contains('blog_title blog_author').should('not.exist')
+			})
 		})
 	})
 })

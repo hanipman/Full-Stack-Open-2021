@@ -25,6 +25,13 @@ const App = () => {
 	const [error, setError] = useState(false)
 
 	useEffect(() => {
+		const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
+		if (loggedUserJSON) {
+			const user = JSON.parse(loggedUserJSON)
+			setUser(user)
+			blogsService.setToken(user.token)
+		}
+
 		if (!user && !blogs.length) {
 			blogsService.getAll().then(blogs => setBlogs(blogs))
 		}
