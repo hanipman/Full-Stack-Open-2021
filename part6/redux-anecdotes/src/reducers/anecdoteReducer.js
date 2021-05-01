@@ -1,4 +1,4 @@
-const getId = () => (100000 * Math.random()).toFixed(0)
+// const getId = () => (100000 * Math.random()).toFixed(0)
 
 const anecdoteReducer = (state = [], action) => {
   console.log('state now: ', state)
@@ -14,7 +14,7 @@ const anecdoteReducer = (state = [], action) => {
       }
       const new_states = state.map(anecdote => anecdote.id !== id ? anecdote : new_anecdote)
       return new_states.sort((a, b) => b.votes - a.votes)
-    case 'NEW_ANECDOTE':
+    case 'NEW_ANECDOTE':      
       return [...state, action.data]
     case 'INITIALIZE':
       return action.initialState
@@ -30,12 +30,12 @@ export const incrementVote = (id) => {
   }
 }
 
-export const createAnecdote = (content) => {
+export const createAnecdote = (content, id) => {
   return {
     type: 'NEW_ANECDOTE',
     data: {
       content,
-      id: getId(),
+      id,
       votes: 0
     }
   }
