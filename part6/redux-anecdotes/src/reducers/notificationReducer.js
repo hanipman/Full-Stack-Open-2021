@@ -4,6 +4,8 @@ const notificationReducer = (state = '', action) => {
 			return `Voted for anecdote '${action.content}'`
 		case 'NEW_ANECDOTE_NOTIFICATION':
 			return `Added new anecdote '${action.content}'`
+		case 'HIDE_NOTIFICATION':
+			return ''
 		default:
 			return state
 	}
@@ -20,6 +22,12 @@ export const newAnecdoteNotification = (content) => {
 	return {
 		type: 'NEW_ANECDOTE_NOTIFICATION',
 		content
+	}
+}
+
+export const hideNotification = () => {
+	return {
+		type: 'HIDE_NOTIFICATION'
 	}
 }
 
