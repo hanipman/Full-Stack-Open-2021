@@ -19,16 +19,19 @@ const anecdoteReducer = (state = [], action) => {
     case 'NEW_ANECDOTE':      
       return [...state, action.data]
     case 'INITIALIZE':
-      return action.initialState
+      return action.initialState.sort((a, b)=> b.votes - a.votes)
     default:
       return state
   }
 }
 
-export const incrementVote = (id) => {
-  return {
-    type: 'VOTE',
-    data: { id }
+export const incrementVote = (anecdote) => {
+  return async dispatch => {
+    await anecdotesService.update(anecdote)
+    dispatch({
+      type: 'VOTE',
+      data: { id: anecdote.id }
+    })
   }
 }
 
