@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client'
 import { ALL_AUTHORS, UPDATE_AUTHOR_BORN } from '../queries'
 
@@ -7,12 +7,18 @@ const Authors = (props) => {
   const [born, setBorn] = useState('')
 
   const result = useQuery(ALL_AUTHORS)
-  const [ editAuthor ] = useMutation(UPDATE_AUTHOR_BORN, {
+  const [ editAuthor, update_result ] = useMutation(UPDATE_AUTHOR_BORN, {
     refetchQueries: [ { query: ALL_AUTHORS }],
     onError: (error) => {
       props.setError(error.message)
     }
   })
+
+  useEffect(() => {
+    if (update_result.data && update_result.data.editAuthor === null) {
+      props.setError('author not found')
+    }
+  }, [update_result.data]) // eslint-disable-line
 
   if (!props.show) {
     return null
@@ -30,7 +36,7 @@ const Authors = (props) => {
     e.preventDefault()
   
     const date = parseInt(born)
-    editAuthor({ variables: { name, born: date } })
+    editAuthor({ variables: { name, setBornTo: date } })
 
     setName('')
     setBorn('')
@@ -62,14 +68,21 @@ const Authors = (props) => {
       <br />
       <h2>Set birthyear</h2>
       <form onSubmit={submit}>
-        name
+        {/* name
         <input
           value={name}
           onChange={({ target }) => setName(target.value)}
-        />
+        /> */}
+        <select defaultValue='default' onChange={({ target }) => setName(target.value)}>
+          <option disabled value='default'> -- select an option -- </option>
+          {result.data.allAuthors.map(a =>
+            <option key={a.name}>{a.name}</option>
+          )}
+        </select>
         <br />
         born
         <input
+          type='number'
           value={born}
           onChange={({ target }) => setBorn(target.value)}
         />
