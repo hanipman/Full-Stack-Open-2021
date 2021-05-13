@@ -22,10 +22,10 @@ const Books = (props) => {
     for (let i = 0; i < result.data.allBooks.length; i++) {
       unique_genres = unique_genres.concat(result.data.allBooks[i].genres)
     }
-    unique_genres = [...new Set(unique_genres)]
+    unique_genres = [...new Set(unique_genres)].sort()
   }
   return (
-    <div>a
+    <div>
       <h2>books</h2>
       {unique_genres.map(g => 
         <button key={g} value={g} onClick={(e) => setFilter(e.target.value)}>{g}</button>  
@@ -43,13 +43,16 @@ const Books = (props) => {
               published
             </th>
           </tr>
-          {result.data.allBooks.filter(b => filter !== '' ? b.genres.includes(filter) : b).map(b =>
-            <tr key={b.title}>
-              <td>{b.title}</td>
-              <td>{b.author.name}</td>
-              <td>{b.published}</td>
-            </tr>
-          )}
+          {result.data.allBooks
+            .filter(b => filter !== '' ? b.genres.includes(filter) : b)
+            .map(b =>
+              <tr key={b.title}>
+                <td>{b.title}</td>
+                <td>{b.author.name}</td>
+                <td>{b.published}</td>
+              </tr>
+            )
+          }
         </tbody>
       </table>
     </div>
