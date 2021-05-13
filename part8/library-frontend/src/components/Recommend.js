@@ -1,16 +1,22 @@
-import React from 'react'
-import { useQuery } from '@apollo/client'
+import React, { useEffect } from 'react'
+import { useQuery, useLazyQuery } from '@apollo/client'
 import { ALL_BOOKS, FAVORITE_GENRE } from '../queries'
 
 const Recommend = ({ show }) => {
   const genre_result = useQuery(FAVORITE_GENRE)
-  const booklist_result = useQuery(ALL_BOOKS)
+  const [getRecBooks, recbooks_result] = useLazyQuery(ALL_BOOKS)
+
+  useEffect(() => {
+    if (genre_result.data) {
+      getRecBooks({ variables: { genre: genre_result.data.me.favoriteGenre } })
+    }
+  }, [genre_result]) //eslint-disable-line
 
   if (!show) {
     return null
   }
 
-  if (genre_result.loading || booklist_result.loading) {
+  if (genre_result.loading || recbooks_result.loading) {
     return (
       <div>
         loading...
@@ -32,7 +38,7 @@ const Recommend = ({ show }) => {
               published
             </th>
           </tr>
-          {booklist_result.data.allBooks
+          {recbooks_result.data.allBooks
             .filter(b => b.genres.includes(genre_result.data.me.favoriteGenre))
             .map(b =>
               <tr key={b.title}>

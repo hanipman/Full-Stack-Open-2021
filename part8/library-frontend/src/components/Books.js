@@ -1,28 +1,33 @@
-import React, { useState } from 'react'
-import { useQuery } from '@apollo/client'
+import React, { useEffect, useState } from 'react'
+import { useLazyQuery } from '@apollo/client'
 import { ALL_BOOKS } from '../queries'
 
 const Books = (props) => {
   const [filter, setFilter] = useState('')
-  const result = useQuery(ALL_BOOKS)
-  let unique_genres = []
+  const [unique_genres, setUniqueGenres] = useState([])
+  const [getAllBooks, result] = useLazyQuery(ALL_BOOKS, { fetchPolicy: 'cache-and-network' })
+
+  useEffect(() => {
+    getAllBooks()
+  }, []) //eslint-disable-line
+
+  useEffect(() => {
+    if (result.data) {
+      let temp = unique_genres
+      for (let i = 0; i < result.data.allBooks.length; i++) {
+        temp = temp.concat(result.data.allBooks[i].genres)
+      }
+      temp = [...new Set(temp)].sort()
+      setUniqueGenres(temp)
+    }
+  }, [result]) //eslint-disable-line
+
+  useEffect(() => {
+    getAllBooks(filter === '' ? null : { variables: { genre: filter } })
+  }, [filter]) //eslint-disable-line
 
   if (!props.show) {
     return null
-  }
-
-  if (result.loading) {
-    return (
-      <div>
-        loading...
-      </div>
-    )
-  }
-  else {
-    for (let i = 0; i < result.data.allBooks.length; i++) {
-      unique_genres = unique_genres.concat(result.data.allBooks[i].genres)
-    }
-    unique_genres = [...new Set(unique_genres)].sort()
   }
   return (
     <div>
@@ -32,6 +37,10 @@ const Books = (props) => {
       )}
       <button value={''} onClick={(e) => setFilter(e.target.value)}>all</button>
       <div>Filter by: {filter !== '' ? filter : 'all'}</div>
+      {result.loading ?
+      <div>
+        loading
+      </div> :
       <table>
         <tbody>
           <tr>
@@ -44,7 +53,6 @@ const Books = (props) => {
             </th>
           </tr>
           {result.data.allBooks
-            .filter(b => filter !== '' ? b.genres.includes(filter) : b)
             .map(b =>
               <tr key={b.title}>
                 <td>{b.title}</td>
@@ -55,6 +63,7 @@ const Books = (props) => {
           }
         </tbody>
       </table>
+      }
     </div>
   )
 }
