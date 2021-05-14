@@ -8,7 +8,6 @@ const Recommend = ({ show }) => {
 
   useEffect(() => {
     if (genre_result.data) {
-      console.log(genre_result.data)
       getRecBooks({ variables: { genre: genre_result.data.me.favoriteGenre } })
     }
   }, [genre_result]) //eslint-disable-line

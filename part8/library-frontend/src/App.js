@@ -67,9 +67,9 @@ const App = () => {
         setError={notify}
       />
 
-      <Recommend
+      {token ? <Recommend
         show={page === 'recommend'}
-      />
+      /> : null }
 
       <LoginForm
         show={page === 'login'}
