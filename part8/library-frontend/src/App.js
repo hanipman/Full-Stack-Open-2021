@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { useApolloClient } from '@apollo/client'
+import { useApolloClient, useSubscription } from '@apollo/client'
+import { ALL_BOOKS, BOOK_ADDED } from './queries'
 import Authors from './components/Authors'
 import Books from './components/Books'
 import LoginForm from './components/LoginForm'
@@ -12,6 +13,13 @@ const App = () => {
   const [token, setToken] = useState(null)
 
   const client = useApolloClient()
+
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      const addedBook = subscriptionData.data.bookAdded
+      window.alert(`${addedBook.title} added`)
+    }
+  })
 
   const notify = (message) => {
     setErrorMessage(message)
@@ -62,7 +70,7 @@ const App = () => {
       <Recommend
         show={page === 'recommend'}
       />
-            
+
       <LoginForm
         show={page === 'login'}
         setPage={setPage}
