@@ -1,5 +1,5 @@
 const { ApolloServer, PubSub, UserInputError, AuthenticationError, gql } = require('apollo-server')
-const { v4: uuidv4 } = require('uuid')
+const DataLoader = require('dataloader')
 const config = require('./utils/config')
 const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose')
@@ -98,7 +98,11 @@ mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology
     console.log('error connecting to MongoDB: ', error.message)
   })
 
+// mongoose.set('debug', true)
+
 const pubsub = new PubSub()
+
+const bookLoader = new DataLoader(authors => myBatchGetBookCount(authors))
 
 const typeDefs = gql`
   type Book {
@@ -183,8 +187,9 @@ const resolvers = {
     me: (root, args, context) => context.currentUser
   },
   Author: {
-    bookCount: async (root) => {
-      return await Book.find({ author: root.id }).countDocuments()
+    bookCount: async (root, args, { loaders }) => {
+      const books = await loaders.books.load(root.id)
+      return books.length
     }
   },
   Mutation: {
@@ -280,17 +285,37 @@ const resolvers = {
   }
 }
 
+const myBatchGetBookCount = async (authorsIds) => {
+  const books = await Book.find({ author: { $in: authorsIds } })
+  return authorsIds.map(id => books.filter(book => String(book.author) === id))
+}
+
+const logQuery = {
+  requestDidStart(requestContext) {
+    console.log(`Request started! Query:\n${requestContext.request.query}`)
+    return
+  }
+}
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  plugins: [logQuery],
   context: async ({ req }) => {
     const auth = req ? req.headers.authorization: null
     if (auth && auth.toLowerCase().startsWith('bearer ')) {
       const decodedToken = jwt.verify(
         auth.substring(7), config.JWT_SECRET
       )
-      const currentUser = await User.findById(decodedToken.id)
-      return { currentUser }
+      if (req) {
+        const currentUser = await User.findById(decodedToken.id)
+        return {
+          currentUser,
+          loaders: {
+            books: bookLoader,
+          }
+        }
+      }
     }
   }
 })
