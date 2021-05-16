@@ -4,12 +4,13 @@ interface exerciseStats {
 }
 
 const parseHoursArray = (args: Array<string>): exerciseStats => {
-	if (args.length < 4) throw new Error('Not enough arguments')
-	if (args.length > 4) throw new Error('Too many arguments')
+	console.log(args.length)
+	if (args.length < 12) throw new Error('Not enough arguments')
+	if (args.length > 12) throw new Error('Too many arguments')
 
-	const str = args[2].replace(/[\[\]]/g, '')
-	const arr = str.split(' ')
+	const arr = args.slice(3)
 	let temp: Array<number> = []
+	console.log(arr)
 
 	for (let i = 0; i < arr.length; i++) {
 		if (isNaN(Number(arr[i]))) {
@@ -17,12 +18,12 @@ const parseHoursArray = (args: Array<string>): exerciseStats => {
 		}
 		temp = [...temp, Number(arr[i])]
 	}
-	if (isNaN(Number(args[3]))) {
+	if (isNaN(Number(args[2]))) {
 		throw new Error('Provided values were not numbers!')
 	}
 	return {
 		dailyHours: temp,
-		target: Number(args[3])
+		target: Number(args[2])
 	}
 }
 
@@ -35,29 +36,30 @@ const calculateExercises = (dailyHours: Array<number>, target: number) => {
 			sum = sum + dailyHours[i]
 		}
 	}
-	const avg = sum/7
-	const rating = avg >= 2 ? 3 : Math.round(avg) + 1
-	const description = (rating: number) => {
-		switch(rating) {
-			case 1:
-				return 'not very good'
-			case 2:
-				return 'not too bad but could be better'
-			case 3:
-				return 'very good'
-			default:
-				return 'invalid rating'
-		}
+	const avg = sum/dailyHours.length
+	let rating = 3
+	let description = ''
+	if (avg < target * 0.5) {
+		description = 'not very good'
+		rating = 1
+	}
+	else if (avg >= target * 0.5 && avg <= target * 1.5) {
+		description = 'not too bad but could be better'
+		rating = 2
+	}
+	else {
+		description = 'very good'
+		rating = 3
 	}
 
 	return {
-		periodLength: 7,
+		periodLength: dailyHours.length,
 		trainingDays,
 		target,
 		average: avg,
-		success: trainingDays === 7,
+		success: avg >= target,
 		rating: rating,
-		ratingDescription: description(rating)
+		ratingDescription: description
 	}
 }
 
