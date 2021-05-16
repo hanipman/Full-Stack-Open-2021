@@ -4,13 +4,11 @@ interface exerciseStats {
 }
 
 const parseHoursArray = (args: Array<string>): exerciseStats => {
-	console.log(args.length)
 	if (args.length < 12) throw new Error('Not enough arguments')
 	if (args.length > 12) throw new Error('Too many arguments')
 
 	const arr = args.slice(3)
 	let temp: Array<number> = []
-	console.log(arr)
 
 	for (let i = 0; i < arr.length; i++) {
 		if (isNaN(Number(arr[i]))) {
