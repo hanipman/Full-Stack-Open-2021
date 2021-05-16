@@ -4,50 +4,50 @@ interface exerciseStats {
 }
 
 const parseHoursArray = (args: Array<string>): exerciseStats => {
-	if (args.length < 12) throw new Error('Not enough arguments')
-	if (args.length > 12) throw new Error('Too many arguments')
+	if (args.length < 12) throw new Error('Not enough arguments');
+	if (args.length > 12) throw new Error('Too many arguments');
 
-	const arr = args.slice(3)
-	let temp: Array<number> = []
+	const arr = args.slice(3);
+	let temp: Array<number> = [];
 
 	for (let i = 0; i < arr.length; i++) {
 		if (isNaN(Number(arr[i]))) {
-			throw new Error('Provided values were not numbers!')
+			throw new Error('Provided values were not numbers!');
 		}
-		temp = [...temp, Number(arr[i])]
+		temp = [...temp, Number(arr[i])];
 	}
 	if (isNaN(Number(args[2]))) {
-		throw new Error('Provided values were not numbers!')
+		throw new Error('Provided values were not numbers!');
 	}
 	return {
 		dailyHours: temp,
 		target: Number(args[2])
-	}
-}
+	};
+};
 
 const calculateExercises = (dailyHours: Array<number>, target: number) => {
-	let trainingDays = 0
-	let sum = 0
+	let trainingDays = 0;
+	let sum = 0;
 	for (let i = 0; i < dailyHours.length; i++) {
 		if (dailyHours[i] !== 0) {
-			trainingDays++
-			sum = sum + dailyHours[i]
+			trainingDays++;
+			sum = sum + dailyHours[i];
 		}
 	}
-	const avg = sum/dailyHours.length
-	let rating = 3
-	let description = ''
+	const avg = sum/dailyHours.length;
+	let rating = 3;
+	let description = '';
 	if (avg < target * 0.5) {
-		description = 'not very good'
-		rating = 1
+		description = 'not very good';
+		rating = 1;
 	}
 	else if (avg >= target * 0.5 && avg <= target * 1.5) {
-		description = 'not too bad but could be better'
-		rating = 2
+		description = 'not too bad but could be better';
+		rating = 2;
 	}
 	else {
-		description = 'very good'
-		rating = 3
+		description = 'very good';
+		rating = 3;
 	}
 
 	return {
@@ -58,13 +58,15 @@ const calculateExercises = (dailyHours: Array<number>, target: number) => {
 		success: avg >= target,
 		rating: rating,
 		ratingDescription: description
-	}
-}
+	};
+};
 
 try {
-	const { dailyHours, target } = parseHoursArray(process.argv)
-	console.log(calculateExercises(dailyHours, target))
+	const { dailyHours, target } = parseHoursArray(process.argv);
+	console.log(calculateExercises(dailyHours, target));
 }
 catch (e) {
-	console.log(`Error: ${e.message}`)
+	if (e instanceof Error) {
+		console.log(`Error: ${e.message}`);
+	}
 }
