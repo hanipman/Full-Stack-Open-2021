@@ -1,9 +1,9 @@
-interface exerciseStats {
-	dailyHours: Array<number>
+export interface ExerciseStats {
+	daily_exercises: Array<number>
 	target: number
 }
 
-const parseHoursArray = (args: Array<string>): exerciseStats => {
+const parseHoursArray = (args: Array<string>): ExerciseStats => {
 	if (args.length < 12) throw new Error('Not enough arguments');
 	if (args.length > 12) throw new Error('Too many arguments');
 
@@ -20,21 +20,21 @@ const parseHoursArray = (args: Array<string>): exerciseStats => {
 		throw new Error('Provided values were not numbers!');
 	}
 	return {
-		dailyHours: temp,
+		daily_exercises: temp,
 		target: Number(args[2])
 	};
 };
 
-const calculateExercises = (dailyHours: Array<number>, target: number) => {
+export const calculateExercises = (daily_exercises: Array<number>, target: number) => {
 	let trainingDays = 0;
 	let sum = 0;
-	for (let i = 0; i < dailyHours.length; i++) {
-		if (dailyHours[i] !== 0) {
+	for (let i = 0; i < daily_exercises.length; i++) {
+		if (daily_exercises[i] !== 0) {
 			trainingDays++;
-			sum = sum + dailyHours[i];
+			sum = sum + daily_exercises[i];
 		}
 	}
-	const avg = sum/dailyHours.length;
+	const avg = sum/daily_exercises.length;
 	let rating = 3;
 	let description = '';
 	if (avg < target * 0.5) {
@@ -51,7 +51,7 @@ const calculateExercises = (dailyHours: Array<number>, target: number) => {
 	}
 
 	return {
-		periodLength: dailyHours.length,
+		periodLength: daily_exercises.length,
 		trainingDays,
 		target,
 		average: avg,
@@ -62,8 +62,8 @@ const calculateExercises = (dailyHours: Array<number>, target: number) => {
 };
 
 try {
-	const { dailyHours, target } = parseHoursArray(process.argv);
-	console.log(calculateExercises(dailyHours, target));
+	const { daily_exercises, target } = parseHoursArray(process.argv);
+	console.log(calculateExercises(daily_exercises, target));
 }
 catch (e) {
 	if (e instanceof Error) {

@@ -1,16 +1,16 @@
-interface MultiplyValues {
-	value1: number
-	value2: number
+export interface BmiStats {
+	height: number
+	weight: number
 }
 
-export const parseBmiArgs = (args: Array<string>): MultiplyValues => {
+const parseBmiArgs = (args: Array<string>): BmiStats => {
 	if (args.length < 4) throw new Error('Not enough arguments');
 	if (args.length > 4) throw new Error('Too many arguments');
 
 	if (!isNaN(Number(args[2])) && !isNaN(Number(args[3]))) {
 		return {
-			value1: Number(args[2]),
-			value2: Number(args[3])
+			height: Number(args[2]),
+			weight: Number(args[3])
 		};
 	}
 	else {
@@ -47,10 +47,12 @@ export const calculateBmi = (height: number, weight: number) => {
 	return 'invalid bmi';
 };
 
-// try {
-// 	const { value1, value2 } = parseBmiArgs(process.argv);
-// 	console.log(calculateBmi(value1, value2));
-// }
-// catch (e) {
-// 	console.log(`Error: ${e.message}`);
-// }
+try {
+	const { height, weight } = parseBmiArgs(process.argv);
+	console.log(calculateBmi(height, weight));
+}
+catch (e) {
+	if (e instanceof Error) {
+		console.log(`Error: ${e.message}`);
+	}
+}
